@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import "./global.css";
+import { getSession, getProfile } from "@/lib/auth"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,19 +16,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Interactive Data Dashboard",
-  description: "An interactive data dashboard built with Next.js & shadcn/UI",
+  description: "An interactive data dashboard with auth, roles and protected routes. Built with Next.js & shadcn/UI and supabase",
   icons: {
     icon: "/favicon.ico",
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+ export default async function RootLayout({ children }: { children: React.ReactNode }) {
+   const session = await getSession();
+   const profile = session ? await getProfile() : null;
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900`}
       >
@@ -37,10 +36,10 @@ export default function RootLayout({
             <Link href="/" className="text-xl font-bold">
               📊 Interactive Data Dashboard
             </Link>
-            <nav className="space-x-4">
+            <nav className="flex items-center gap-4">
               {/* Other links… */}
               <Link
-                href="https://github.com/RowanWhitethorn/interactive-data-dashboard"change for my repo link
+                href="https://github.com/RowanWhitethorn/InteractiveDashboard"
                 target="_blank"
                 rel="noopener"
                 className="inline-flex items-center space-x-1 text-gray-700 hover:text-gray-900"
@@ -48,6 +47,29 @@ export default function RootLayout({
                 <Star className="w-4 h-4 text-yellow-500" />
                 <span>Star on GitHub</span>
               </Link>
+              {session ? (
+                <form action="/logout">
+                  <button className="rounded-md border px-3 py-1.5 text-sm">
+                    Sign out
+                  </button>
+                </form>
+              ) : (
+                <div className="inline-flex items-center gap-2">
+                  <Link
+                    href="/sign-in"
+                    className="rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white hover:bg-gray-800"
+                  >
+                    Sign in
+                  </Link>
+                  <span className="text-gray-300">/</span>
+                  <Link
+                    href="/sign-up"
+                    className="text-sm text-gray-700 hover:text-gray-900 underline"
+                  >
+                    Sign up
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         </header>
