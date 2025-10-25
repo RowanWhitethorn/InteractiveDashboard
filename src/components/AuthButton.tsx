@@ -1,36 +1,50 @@
+// src/components/AuthButton.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 export default function AuthButton() {
   const router = useRouter();
-  const supabase = createSupabaseBrowser();
+  const supabase = useMemo(() => createSupabaseBrowser(), []); // ← evita instancias por render
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // initial read
+    // lectura inicial
     supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-    // live updates
+    // suscripción a cambios (login/logout realizados en el cliente)
     const { data: sub } = supabase.auth.onAuthStateChange((_evt, session) => {
       setSignedIn(!!session);
-      // force server components to refetch if you want the whole UI to reflect the change
-      router.refresh();
+      router.refresh(); // refresca RSC
     });
     return () => sub.subscription.unsubscribe();
   }, [router, supabase]);
 
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();   // ← dispara onAuthStateChange en el cliente
+    } catch {
+      // opcional: log
+    } finally {
+      router.refresh();                // rehidrata componentes server
+      router.push('/sign-in');         // UX: llévalo al sign-in
+    }
+  };
+
   if (signedIn === null) {
-    // tiny placeholder to avoid layout shift
-    return <div className="w-[92px] h-[34px]" />;
+    return <div className="w-[92px] h-[34px]" />; // skeleton pequeño
   }
 
   return signedIn ? (
-    <form action="/logout">
-      <button className="rounded-md border px-3 py-1.5 text-sm">Sign out</button>
-    </form>
+    // 👇 sin <form action="/logout">; lo hacemos client-side
+    <button
+      onClick={handleSignOut}
+      className="rounded-md border px-3 py-1.5 text-sm"
+    >
+      Sign out
+    </button>
   ) : (
     <div className="inline-flex items-center gap-2">
       <Link
