@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import "./global.css";
 import { getSession, getProfile } from "@/lib/auth"
+import AuthButton from '@/components/AuthButton';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,40 +37,17 @@ export const metadata: Metadata = {
             <Link href="/" className="text-xl font-bold">
               📊 Interactive Data Dashboard
             </Link>
-            <nav className="flex items-center gap-4">
-              {/* Other links… */}
-              <Link
-                href="https://github.com/RowanWhitethorn/InteractiveDashboard"
-                target="_blank"
-                rel="noopener"
-                className="inline-flex items-center space-x-1 text-gray-700 hover:text-gray-900"
-              >
+              <nav className="space-x-4 flex items-center gap-4">
+                <Link
+                  href="https://github.com/RowanWhitethorn/InteractiveDashboard"
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex items-center space-x-1 text-gray-700 hover:text-gray-900"
+                >
                 <Star className="w-4 h-4 text-yellow-500" />
                 <span>Star on GitHub</span>
               </Link>
-              {session ? (
-                <form action="/logout">
-                  <button className="rounded-md border px-3 py-1.5 text-sm">
-                    Sign out
-                  </button>
-                </form>
-              ) : (
-                <div className="inline-flex items-center gap-2">
-                  <Link
-                    href="/sign-in"
-                    className="rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white hover:bg-gray-800"
-                  >
-                    Sign in
-                  </Link>
-                  <span className="text-gray-300">/</span>
-                  <Link
-                    href="/sign-up"
-                    className="text-sm text-gray-700 hover:text-gray-900 underline"
-                  >
-                    Sign up
-                  </Link>
-                </div>
-              )}
+              <AuthButton />
             </nav>
           </div>
         </header>

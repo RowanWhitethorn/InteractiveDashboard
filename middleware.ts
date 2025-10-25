@@ -6,7 +6,7 @@ import { createServerClient } from "@supabase/ssr";
 const PUBLIC_ONLY = new Set(["/sign-in", "/sign-up"]);
 
 // Paths that require authentication (add/remove to match your app)
-const PROTECTED_PREFIXES = [ "/", "/app", "/projects", "/admin"]; // keep even if some don't exist yet
+const PROTECTED_PREFIXES = ["/", "/projects", "/admin"];
 
 function isProtected(pathname: string) {
   // raíz exacta o prefijos con subrutas
@@ -50,7 +50,7 @@ export async function middleware(req: NextRequest) {
 
   // 2) If already signed in and trying to visit /sign-in or /sign-up, send to next or /app
   if (session && PUBLIC_ONLY.has(pathname)) {
-    const next = searchParams.get("next") || "/app";
+    const next = searchParams.get("next") || "/";
     url.pathname = next;
     url.search = ""; // clean query when redirecting
     return NextResponse.redirect(url);
@@ -66,7 +66,6 @@ export const config = {
     "/",
     "/sign-in",
     "/sign-up",
-    "/app/:path*",
     "/projects/:path*",
     "/admin/:path*",
   ],
