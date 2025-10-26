@@ -2,8 +2,8 @@
   "type": "directory",
   "name": "interactive-data-dashboard",
   "path": ".",
-  "size": 416771,
-  "size_kb": 407,
+  "size": 416545,
+  "size_kb": 406.8,
   "children": [
     {
       "type": "directory",
@@ -93,37 +93,37 @@
       "type": "directory",
       "name": "src",
       "path": "src",
-      "size": 105075,
+      "size": 105092,
       "size_kb": 102.6,
       "children": [
         {
           "type": "directory",
           "name": "app",
           "path": "src\\app",
-          "size": 46007,
+          "size": 46024,
           "size_kb": 44.9,
           "children": [
             {
               "type": "directory",
               "name": "(public)",
               "path": "src\\app\\(public)",
-              "size": 8226,
+              "size": 8243,
               "size_kb": 8,
               "children": [
                 {
                   "type": "directory",
                   "name": "sign-in",
                   "path": "src\\app\\(public)\\sign-in",
-                  "size": 3658,
+                  "size": 3675,
                   "size_kb": 3.6,
                   "children": [
                     {
                       "type": "file",
                       "name": "page.tsx",
-                      "size": 3658,
+                      "size": 3675,
                       "size_kb": 3.6,
                       "ext": "tsx",
-                      "mtime": "2025-10-25T07:46:13.540Z",
+                      "mtime": "2025-10-25T07:50:26.357Z",
                       "depth": 4
                     }
                   ],
@@ -232,7 +232,7 @@
               "size": 669,
               "size_kb": 0.7,
               "ext": "tsx",
-              "mtime": "2025-10-25T07:15:57.590Z",
+              "mtime": "2025-10-26T17:35:54.521Z",
               "depth": 2
             },
             {
@@ -491,10 +491,10 @@
     {
       "type": "file",
       "name": "middleware.ts",
-      "size": 2156,
-      "size_kb": 2.1,
+      "size": 1904,
+      "size_kb": 1.9,
       "ext": "ts",
-      "mtime": "2025-10-25T07:25:12.855Z",
+      "mtime": "2025-10-26T17:24:19.074Z",
       "depth": 0
     },
     {
@@ -509,10 +509,10 @@
     {
       "type": "file",
       "name": "next.config.ts",
-      "size": 140,
-      "size_kb": 0.1,
+      "size": 157,
+      "size_kb": 0.2,
       "ext": "ts",
-      "mtime": "2025-10-19T18:32:16.300Z",
+      "mtime": "2025-10-26T17:34:29.407Z",
       "depth": 0
     },
     {
@@ -545,19 +545,19 @@
     {
       "type": "file",
       "name": "project_structure.json",
-      "size": 15352,
+      "size": 15348,
       "size_kb": 15,
       "ext": "json",
-      "mtime": "2025-10-25T07:39:57.256Z",
+      "mtime": "2025-10-26T16:54:26.014Z",
       "depth": 0
     },
     {
       "type": "file",
       "name": "project_structure.txt",
-      "size": 2004,
+      "size": 2000,
       "size_kb": 2,
       "ext": "txt",
-      "mtime": "2025-10-25T07:39:57.256Z",
+      "mtime": "2025-10-26T16:54:26.014Z",
       "depth": 0
     },
     {

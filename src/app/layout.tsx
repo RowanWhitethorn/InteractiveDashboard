@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import "./global.css";
 import { getSession, getProfile } from "@/lib/auth"
-import AuthButton from '@/components/AuthButton';
+import AuthButton from "@/components/AuthButton";
 import UserBadge from "@/components/UserBadge";
 
 const geistSans = Geist({

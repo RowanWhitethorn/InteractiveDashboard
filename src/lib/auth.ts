@@ -47,8 +47,12 @@ export async function getProfile(): Promise<Profile | null> {
     .select("user_id, email, role, display_name")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (error) throw error;
-  return (data as Profile) ?? null;
+ if (error) {
+   // Devuelve null, no rompas el layout. Loguea si quieres.
+   console.warn("getProfile() suppressed error:", error.message);
+   return null;
+ }
+ return (data as Profile) ?? null;
 }
 
 /** Enforce admin role or redirect away. */
@@ -63,8 +67,7 @@ export async function requireAdmin() {
     .eq("user_id", user.id)
     .single();
 
-  if (error) throw error;
-  if (data?.role !== "admin") redirect("/app");
+  if (data?.role !== "admin") redirect("/");
 
   return { supabase, user };
 }
