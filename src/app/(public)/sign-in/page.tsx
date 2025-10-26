@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, Lock } from 'lucide-react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
@@ -17,12 +17,13 @@ const next = search.get('next') || '/';
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [error, setError] = useState<string | null>(null);
-const [pending, startTransition] = useTransition();
+const [pending, setPending] = useState(false);
 
 
 async function onSubmit(e: React.FormEvent) {
   e.preventDefault();
   setError(null);
+  setPending(true);
   try {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
@@ -33,10 +34,12 @@ async function onSubmit(e: React.FormEvent) {
     const { data } = await supabase.auth.getSession();
     console.log('Session after sign-in', data.session);
     router.replace(next);
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unexpected error';
     console.error('signIn exception', e);
-    setError(e?.message || 'Unexpected error');
+    setError(msg);
   }
+  finally { setPending(false); }
 }
 
 

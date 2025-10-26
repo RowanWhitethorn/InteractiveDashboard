@@ -62,9 +62,10 @@ export default function SignUpPage() {
           alert('Check your email to confirm your account, then sign in.');
           router.replace('/sign-in');
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Unexpected error';
         console.error('signUp exception', e);
-        setError(e?.message || 'Unexpected error');
+        setError(msg);
       }
     });
   }
@@ -99,7 +100,8 @@ export default function SignUpPage() {
           Role <span className="text-[10px] text-amber-600 ml-1">no intentar en producción ☺</span>
           <select
             value={role}
-            onChange={(e) => setRole(e.target.value as 'user' | 'admin')}
+             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+               setRole(e.target.value as 'user' | 'admin')}
             className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
           >
             <option value="user">user</option>

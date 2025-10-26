@@ -39,6 +39,23 @@ type DataPoint = {
   sessions: number;
   newCustomers: number;
 };
+// Server response shapes
+type MetricRow = {
+  day: string;
+  revenue: number;
+  orders: number;
+  sessions: number;
+  new_customers: number;
+};
+type Totals = {
+  revenue: number;
+  orders: number;
+  sessions: number;
+  new_customers: number;
+  avg_order_value: number;
+  conversion_rate: number; // 0..1
+};
+type RangeResponse = { rows: MetricRow[]; totals: Totals };
 
 // 1) KPI metric configuration (same visual model, new data)
 const metrics = [
@@ -123,13 +140,13 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
     startTransition(async () => {
       setError(null);
       try {
-            const run = async () => Metrics.range({ from, to });
-        let res;
+        const run = async (): Promise<RangeResponse> => Metrics.range({ from, to });
+        let res: RangeResponse;
         try {
           res = await run();
-        } catch (e: any) {
+        } catch (e: unknown) {
           // One-shot retry if just logged in and cookies haven't settled yet
-          const msg = (e?.message || '').toLowerCase();
+          const msg = e instanceof Error ? e.message.toLowerCase() : '';
           if (msg.includes('unauthorized')) {
             await new Promise(r => setTimeout(r, 350));
             res = await run();
@@ -137,7 +154,7 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
             throw e;
           }
         }
-        const normalized: DataPoint[] = res.rows.map((r: any) => ({
+        const normalized: DataPoint[] = res.rows.map((r: MetricRow) => ({
           date: r.day, // el server action ya renombra metric_day → day
           revenue: r.revenue,
           orders: r.orders,
@@ -146,9 +163,10 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
         }));
         setData(normalized);
         setTotals(res.totals);
-      } catch (e: any) {
+      } catch (e: unknown) {
         console.error("metrics.range failed", e);
-        setError(e?.message || "Failed to load metrics");
+        const msg = e instanceof Error ? e.message : "Failed to load metrics";
+        setError(msg);
       }
     });
   }, [range]);
