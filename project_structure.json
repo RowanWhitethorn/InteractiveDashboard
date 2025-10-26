@@ -2,8 +2,8 @@
   "type": "directory",
   "name": "interactive-data-dashboard",
   "path": ".",
-  "size": 416134,
-  "size_kb": 406.4,
+  "size": 415948,
+  "size_kb": 406.2,
   "children": [
     {
       "type": "directory",
@@ -93,37 +93,37 @@
       "type": "directory",
       "name": "src",
       "path": "src",
-      "size": 105260,
-      "size_kb": 102.8,
+      "size": 105058,
+      "size_kb": 102.6,
       "children": [
         {
           "type": "directory",
           "name": "app",
           "path": "src\\app",
-          "size": 45855,
+          "size": 45863,
           "size_kb": 44.8,
           "children": [
             {
               "type": "directory",
               "name": "(public)",
               "path": "src\\app\\(public)",
-              "size": 8025,
+              "size": 7979,
               "size_kb": 7.8,
               "children": [
                 {
                   "type": "directory",
                   "name": "sign-in",
                   "path": "src\\app\\(public)\\sign-in",
-                  "size": 3457,
-                  "size_kb": 3.4,
+                  "size": 3411,
+                  "size_kb": 3.3,
                   "children": [
                     {
                       "type": "file",
                       "name": "page.tsx",
-                      "size": 3457,
-                      "size_kb": 3.4,
+                      "size": 3411,
+                      "size_kb": 3.3,
                       "ext": "tsx",
-                      "mtime": "2025-10-26T22:48:50.887Z",
+                      "mtime": "2025-10-26T23:44:55.657Z",
                       "depth": 4
                     }
                   ],
@@ -220,10 +220,10 @@
             {
               "type": "file",
               "name": "layout.tsx",
-              "size": 2946,
+              "size": 3000,
               "size_kb": 2.9,
               "ext": "tsx",
-              "mtime": "2025-10-26T22:43:27.789Z",
+              "mtime": "2025-10-26T23:47:18.320Z",
               "depth": 2
             },
             {
@@ -251,8 +251,8 @@
           "type": "directory",
           "name": "components",
           "path": "src\\components",
-          "size": 53715,
-          "size_kb": 52.5,
+          "size": 53505,
+          "size_kb": 52.3,
           "children": [
             {
               "type": "directory",
@@ -330,10 +330,10 @@
             {
               "type": "file",
               "name": "AuthButton.tsx",
-              "size": 2266,
-              "size_kb": 2.2,
+              "size": 2056,
+              "size_kb": 2,
               "ext": "tsx",
-              "mtime": "2025-10-26T22:51:09.839Z",
+              "mtime": "2025-10-26T23:49:48.992Z",
               "depth": 2
             },
             {
@@ -545,19 +545,19 @@
     {
       "type": "file",
       "name": "project_structure.json",
-      "size": 15346,
+      "size": 15354,
       "size_kb": 15,
       "ext": "json",
-      "mtime": "2025-10-26T17:39:31.529Z",
+      "mtime": "2025-10-26T22:53:39.192Z",
       "depth": 0
     },
     {
       "type": "file",
       "name": "project_structure.txt",
-      "size": 1998,
+      "size": 2006,
       "size_kb": 2,
       "ext": "txt",
-      "mtime": "2025-10-26T17:39:31.528Z",
+      "mtime": "2025-10-26T22:53:39.192Z",
       "depth": 0
     },
     {
