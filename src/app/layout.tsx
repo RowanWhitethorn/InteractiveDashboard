@@ -5,6 +5,7 @@ import { Star } from "lucide-react";
 import "./global.css";
 import { getSession, getProfile } from "@/lib/auth"
 import AuthButton from '@/components/AuthButton';
+import UserBadge from "@/components/UserBadge";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export const metadata: Metadata = {
                 <Star className="w-4 h-4 text-yellow-500" />
                 <span>Star on GitHub</span>
               </Link>
+              <UserBadge />
               <AuthButton />
             </nav>
           </div>

@@ -36,11 +36,20 @@ function iso(d: Date) {
   return `${y}-${m}-${day}`;
 }
 
-export async function range(input: unknown): Promise<MetricsResponse> {
+export async function range(input: unknown) {
   const supabase = await createSupabaseServerAction();
-
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthorized');
+
+  if (!user) {
+    // return empty shape instead of throwing
+    return {
+      rows: [],
+      totals: {
+        revenue: 0, orders: 0, sessions: 0, new_customers: 0,
+        avg_order_value: 0, conversion_rate: 0,
+      },
+    };
+  }
 
   const { data: prof } = await supabase
     .from('profiles')

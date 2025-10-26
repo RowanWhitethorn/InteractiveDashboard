@@ -1,18 +1,19 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { Mail, Lock } from 'lucide-react';
 import { InputField, PasswordInput } from '@/components/ui/input';
 
 export default function SignUpPage() {
-  const supabase = createSupabaseBrowser();
+  const supabase = useMemo(() => createSupabaseBrowser(), []);
   const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'user' | 'admin'>('user'); // ← new
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -37,15 +38,27 @@ export default function SignUpPage() {
           return;
         }
 
-        // Directly read from res.data (Option A)
         const session = res.data.session;
+        const user = res.data.user;
         console.log('Session after sign-up:', session);
 
-        if (session) {
-          // Email confirmations OFF: user already logged in
-          router.replace('/');
+        // If email confirmations are OFF, user is already logged in.
+        if (session && user) {
+          // Upsert profile with chosen role (demo)
+          const { error: upsertErr } = await supabase.from('profiles').upsert({
+            user_id: user.id,
+            email,
+            role,
+          });
+          if (upsertErr) {
+            console.warn('profiles upsert failed (will be created later on login):', upsertErr);
+          }
+          await supabase.auth.getSession();          
+          await new Promise((r) => setTimeout(r, 50));
+          router.refresh();                           
+          router.replace('/');                        
         } else {
-          // Email confirmations ON: wait for verification
+          // If confirmations are ON, user must verify email first.
           alert('Check your email to confirm your account, then sign in.');
           router.replace('/sign-in');
         }
@@ -80,6 +93,19 @@ export default function SignUpPage() {
           onChange={(e) => setPassword(e.target.value)}
           error={error?.toLowerCase().includes('password') ? error : false}
         />
+
+        {/* Role selector (demo) */}
+        <label className="block text-sm">
+          Role <span className="text-[10px] text-amber-600 ml-1">no intentar en producción ☺</span>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as 'user' | 'admin')}
+            className="mt-1 w-full border rounded-md px-3 py-2 bg-background"
+          >
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+        </label>
 
         {error &&
           !error.toLowerCase().includes('email') &&

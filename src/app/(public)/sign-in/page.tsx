@@ -5,6 +5,14 @@ import Link from 'next/link';
 import { Mail, Lock } from 'lucide-react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { InputField, PasswordInput } from '@/components/ui/input';
+import { redirect } from "next/navigation";
+
+ // Catches any route that starts with `/sign-` EXCEPT your real pages
+ // because `/sign-in` and `/sign-up` are more specific and win first.
+ export async function SignTypos() {
+   redirect("/sign-in");
+ }
+
 
 
 export default function SignInPage() {
@@ -88,7 +96,7 @@ return (
           Forgot password?
         </button>
         <span>
-          No account? <Link href="/sign-up" className="underline">Sign up</Link>
+          No account? <Link href="/sign-up" prefetch={false} className="underline">Sign up</Link>
         </span>
       </div>
     </div>

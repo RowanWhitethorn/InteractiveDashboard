@@ -18,6 +18,41 @@ function isProtected(pathname: string) {
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  const url = req.nextUrl.clone();
+  const { pathname, searchParams } = url;
+
+  // --- Normalize ONLY auth typos here (single redirect, no 404 spam)
+  // /signin → /sign-in
+  if (pathname === "/signin") {
+    url.pathname = "/sign-in";
+    return NextResponse.redirect(url);
+  }
+  // /signup → /sign-up
+  if (pathname === "/signup") {
+    url.pathname = "/sign-up";
+    return NextResponse.redirect(url);
+  }
+  // any /sign-* that is NOT exactly /sign-in or /sign-up → /sign-in
+  if (pathname.startsWith("/sign-") && pathname !== "/sign-in" && pathname !== "/sign-up") {
+    url.pathname = "/sign-in";
+    return NextResponse.redirect(url);
+  }
+
+  // --- Normalize auth typos up-front so the URL actually changes (no 404 spam)
+  // /sign-* that isn't exactly /sign-in or /sign-up  → /sign-in
+  if (pathname.startsWith("/sign-") && pathname !== "/sign-in" && pathname !== "/sign-up") {
+    url.pathname = "/sign-in";
+    return NextResponse.redirect(url);
+  }
+  // common aliases
+  if (pathname === "/signin") {
+    url.pathname = "/sign-in";
+    return NextResponse.redirect(url);
+  }
+  if (pathname === "/signup") {
+    url.pathname = "/sign-up";
+    return NextResponse.redirect(url);
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,9 +72,6 @@ export async function middleware(req: NextRequest) {
   );
 
   const { data: { session } } = await supabase.auth.getSession();
-
-  const url = req.nextUrl.clone();
-  const { pathname, searchParams } = url;
 
   // 1) If route is protected and there's no session, send to /sign-in with ?next=...
   if (isProtected(pathname) && !session) {
@@ -62,11 +94,5 @@ export async function middleware(req: NextRequest) {
 
 // Match only the routes we actually care about to keep this fast at the edge
 export const config = {
-  matcher: [
-    "/",
-    "/sign-in",
-    "/sign-up",
-    "/projects/:path*",
-    "/admin/:path*",
-  ],
-};
+matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
+ };

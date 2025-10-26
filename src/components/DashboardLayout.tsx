@@ -123,8 +123,21 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
     startTransition(async () => {
       setError(null);
       try {
-        const res = await Metrics.range({ from, to });
-        const normalized: DataPoint[] = res.rows.map((r) => ({
+            const run = async () => Metrics.range({ from, to });
+        let res;
+        try {
+          res = await run();
+        } catch (e: any) {
+          // One-shot retry if just logged in and cookies haven't settled yet
+          const msg = (e?.message || '').toLowerCase();
+          if (msg.includes('unauthorized')) {
+            await new Promise(r => setTimeout(r, 350));
+            res = await run();
+          } else {
+            throw e;
+          }
+        }
+        const normalized: DataPoint[] = res.rows.map((r: any) => ({
           date: r.day, // el server action ya renombra metric_day → day
           revenue: r.revenue,
           orders: r.orders,
