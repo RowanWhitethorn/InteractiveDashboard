@@ -1,11 +1,19 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Mail, Lock } from 'lucide-react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { InputField, PasswordInput } from '@/components/ui/input';
 import { redirect } from "next/navigation";
+
+ // Catches any route that starts with `/sign-` EXCEPT your real pages
+ // because `/sign-in` and `/sign-up` are more specific and win first.
+ export async function SignTypos() {
+   redirect("/sign-in");
+ }
+
+
 
 export default function SignInPage() {
 const supabase = createSupabaseBrowser();
@@ -17,13 +25,12 @@ const next = search.get('next') || '/';
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [error, setError] = useState<string | null>(null);
-const [pending, setPending] = useState(false);
+const [pending, startTransition] = useTransition();
 
 
 async function onSubmit(e: React.FormEvent) {
   e.preventDefault();
   setError(null);
-  setPending(true);
   try {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
@@ -34,12 +41,10 @@ async function onSubmit(e: React.FormEvent) {
     const { data } = await supabase.auth.getSession();
     console.log('Session after sign-in', data.session);
     router.replace(next);
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unexpected error';
+  } catch (e: any) {
     console.error('signIn exception', e);
-    setError(msg);
+    setError(e?.message || 'Unexpected error');
   }
-  finally { setPending(false); }
 }
 
 
