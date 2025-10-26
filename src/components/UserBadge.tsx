@@ -14,39 +14,57 @@ export default function UserBadge() {
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
 
+   async function loadProfile() {
+   const { data: { user } } = await supabase.auth.getUser();
+   if (!user) {
+     setEmail(null);
+     setRole(null);
+     setLoading(false);
+     return;
+   }
+   const emailLocal = user.email ?? "";
+   const { data: prof } = await supabase
+     .from("profiles")
+     .select("user_id, email, role")
+     .eq("user_id", user.id)
+     .maybeSingle();
+   if (!prof) {
+     // seed mínimo (demo)
+     await supabase.from("profiles").insert({
+       user_id: user.id,
+       email: user.email,
+       role: "user",
+     });
+     setRole("user");
+   } else {
+     setRole((prof.role as Role) ?? "user");
+   }
+   setEmail(emailLocal);
+   setLoading(false);
+ }
+
   // Cargar sesión + perfil; crear perfil si falta (demo-mode)
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        if (!cancelled) { setEmail(null); setRole(null); setLoading(false); }
-        return;
-      }
-      const emailLocal = user.email ?? "";
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("user_id, email, role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (!prof) {
-        // seed mínimo para demo si no existe perfil
-        await supabase.from("profiles").insert({
-          user_id: user.id,
-          email: user.email,
-          role: "user",
-        });
-        if (!cancelled) setRole("user");
-      } else {
-        if (!cancelled) setRole((prof.role as Role) ?? "user");
-      }
-      if (!cancelled) setEmail(emailLocal);
-      if (!cancelled) setLoading(false);
-    })();
-    return () => { cancelled = true; };
-  }, [supabase]);
+   let alive = true;
+   (async () => { setLoading(true); await loadProfile(); })();
+   const { data: sub } = supabase.auth.onAuthStateChange(async (evt, session) => {
+     if (!alive) return;
+     if (evt === "SIGNED_OUT" || !session) {
+       // borra inmediatamente tras logout
+       setEmail(null);
+       setRole(null);
+       setLoading(false);
+       return;
+     }
+     if (evt === "SIGNED_IN" || evt === "TOKEN_REFRESHED" || evt === "USER_UPDATED") {
+       setLoading(true);
+       await loadProfile();
+       // si cambió algo que afecte a Server Components, refresca el árbol
+       if (evt === "SIGNED_IN") router.refresh();
+     }
+   });
+   return () => { alive = false; sub.subscription.unsubscribe(); };
+ }, [supabase, router]);
 
   const username = useMemo(() => {
     if (!email) return "";

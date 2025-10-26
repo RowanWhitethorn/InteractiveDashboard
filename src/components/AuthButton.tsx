@@ -16,14 +16,9 @@ export default function AuthButton() {
     supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
     // suscripción a cambios (login/logout realizados en el cliente)
     const { data: sub } = supabase.auth.onAuthStateChange((evt, session) => {
-      setSignedIn(!!session);
-      // Evita bucles: refresca solo en transiciones de sesión reales
-      if (evt === 'SIGNED_IN' || evt === 'SIGNED_OUT') {
-        // En 404, refresh puede provocar reintentos, usa push solo si cambia la vista
-        if (evt === 'SIGNED_OUT') router.push('/sign-in');
-        else router.refresh();
-      }
-      // Ignora: TOKEN_REFRESHED, INITIAL_SESSION, PASSWORD_RECOVERY, USER_UPDATED, etc.
+     setSignedIn(!!session);
+      if (evt === "SIGNED_IN") router.refresh();
+      if (evt === "SIGNED_OUT") router.push("/sign-in");
     });
 
     return () => sub.subscription.unsubscribe();
