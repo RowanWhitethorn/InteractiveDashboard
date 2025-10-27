@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
  export default async function RootLayout({ children }: { children: React.ReactNode }) {
    const session = await getSession();
-   const profile = session ? await getProfile() : null;
+  // const profile = session ? await getProfile() : null;
   return (
     <html lang="en" suppressHydrationWarning>
       <body

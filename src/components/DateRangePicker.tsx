@@ -59,7 +59,7 @@ export default function DateRangePicker({
       const max = Math.max(min, maxNights ?? count);
 
       let nextFrom = from;
-      let nextTo = to;
+      const nextTo = to;
 
       if (count < min) {
         nextFrom = new Date(to);
