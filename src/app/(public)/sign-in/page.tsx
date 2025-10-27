@@ -7,14 +7,6 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { InputField, PasswordInput } from '@/components/ui/input';
 import { redirect } from "next/navigation";
 
- // Catches any route that starts with `/sign-` EXCEPT your real pages
- // because `/sign-in` and `/sign-up` are more specific and win first.
- export async function SignTypos() {
-   redirect("/sign-in");
- }
-
-
-
 export default function SignInPage() {
 const supabase = createSupabaseBrowser();
 const router = useRouter();
