@@ -38,9 +38,10 @@ async function onSubmit(e: React.FormEvent) {
       setError(error.message);
       return;
     }
-    const { data } = await supabase.auth.getSession();
-    console.log('Session after sign-in', data.session);
-    router.replace(next);
+
+     await supabase.auth.getSession();
+     router.refresh();
+     router.replace(next);
   } catch (e: any) {
     console.error('signIn exception', e);
     setError(e?.message || 'Unexpected error');
