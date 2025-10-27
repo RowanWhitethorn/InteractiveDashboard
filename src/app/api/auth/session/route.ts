@@ -3,9 +3,8 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function POST(req: Request) {
-  const url = new URL(req.url);
-  const res = new NextResponse(null, { status: 204 });
-
+  //const url = new URL(req.url);
+  const res = new NextResponse(null, { status: 204 }); 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
     }
     await supabase.auth.setSession({ access_token, refresh_token });
     return res; // cookies set on response
-  } catch (e) {
+  } catch (b) {  //b?
     return NextResponse.json({ error: "Bad payload" }, { status: 400 });
   }
 }

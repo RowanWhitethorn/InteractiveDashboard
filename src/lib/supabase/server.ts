@@ -1,7 +1,6 @@
 // src/lib/supabase/server.ts
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-
 /**
  * Cliente para Server Components (RSC): puede LEER cookies pero NO escribir.
  * Úsalo en layout/page y en helpers llamados desde RSC (getSession/getProfile).
@@ -15,10 +14,6 @@ export async function createSupabaseServer() {
     cookies: {
       getAll() {
         return cookieStore.getAll();
-      },
-      // En RSC NO se puede escribir cookies → no-op
-      setAll(_cookiesToSet) {
-        /* no-op en RSC */
       },
     },
   });

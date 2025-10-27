@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import "./global.css";
-import { getSession, getProfile } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 import AuthButton from "@/components/AuthButton";
 import UserBadge from "@/components/UserBadge";
 export const dynamic = 'force-dynamic';

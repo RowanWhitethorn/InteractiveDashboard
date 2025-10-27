@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 import { createSupabaseServer } from "@/lib/supabase/server";
-
 // Keep the profile shape narrow and stable
 export type Profile = {
   user_id: string;
@@ -61,7 +60,7 @@ export async function requireAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/sign-in");
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("profiles")
     .select("role")
     .eq("user_id", user.id)

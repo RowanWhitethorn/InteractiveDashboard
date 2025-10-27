@@ -62,7 +62,7 @@ export async function range(input: unknown) {
   const parsed = RangeInput.parse(input);
   // Normaliza orden
   let from = parsed.from <= parsed.to ? parsed.from : parsed.to;
-  let to   = parsed.to   >= parsed.from ? parsed.to   : parsed.from;
+  const to   = parsed.to   >= parsed.from ? parsed.to   : parsed.from;
 
   //  Cap de rango: admin 30 días, user 5 días
   const maxDays = isAdmin ? 30 : 5;
