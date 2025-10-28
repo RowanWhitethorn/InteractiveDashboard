@@ -98,8 +98,8 @@ export async function range(input: unknown) {
   const conversion_rate = sessions > 0 ? orders / sessions : 0;
 
   return {
- rows: (rows ?? []).map((r: any) => ({
-   day: r.metric_day,  // <- viene de la RPC
+ rows: (rows ?? []).map((r: MetricRow) => ({
+   day: r.day,  // <- viene de la RPC
       revenue: Number(r.revenue) || 0,
       orders: Number(r.orders) || 0,
       sessions: Number(r.sessions) || 0,

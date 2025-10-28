@@ -87,7 +87,8 @@ export type InputFieldProps = InputProps & {
 
 export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, description, id: idProp, required, requiredMark = true, ...props }, ref) => {
-    const [id] = React.useState(idProp ?? React.useId());
+    // Always generate the id if it isn't passed as a prop
+    const id = idProp || React.useId(); // Ensure `useId()` is always called unconditionally
 
     return (
       <div className="grid gap-1.5">
@@ -106,6 +107,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   }
 );
 InputField.displayName = "InputField";
+
 
 export type PasswordInputProps = Omit<InputProps, "type" | "right"> & {
   revealByDefault?: boolean;

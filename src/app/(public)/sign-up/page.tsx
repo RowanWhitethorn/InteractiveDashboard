@@ -62,9 +62,10 @@ export default function SignUpPage() {
           alert('Check your email to confirm your account, then sign in.');
           router.replace('/sign-in');
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
+          if (e instanceof Error){
         console.error('signUp exception', e);
-        setError(e?.message || 'Unexpected error');
+        setError(e?.message || 'Unexpected error');}
       }
     });
   }

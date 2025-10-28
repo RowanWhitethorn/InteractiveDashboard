@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     await supabase.auth.setSession({ access_token, refresh_token });
     return res; // cookies set on response
   } catch (b) {  //b?
+    console.error("Error during session setup:", b); 
     return NextResponse.json({ error: "Bad payload" }, { status: 400 });
   }
 }

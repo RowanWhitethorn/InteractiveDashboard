@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/chart";
 import { motion } from "framer-motion";
 import * as Metrics from "@/app/api/actions/metrics";
+import type { MetricRow, MetricsResponse } from "@/app/api/actions/metrics";
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
 const itemVariants = {
@@ -120,37 +121,40 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
   // 2) Fetch when range changes
   useEffect(() => {
     const [from, to] = range;
-    startTransition(async () => {
-      setError(null);
-      try {
-            const run = async () => Metrics.range({ from, to });
-        let res;
+      startTransition(async () => {
+        setError(null);
         try {
-          res = await run();
-        } catch (e: any) {
-          // One-shot retry if just logged in and cookies haven't settled yet
-          const msg = (e?.message || '').toLowerCase();
-          if (msg.includes('unauthorized')) {
-            await new Promise(r => setTimeout(r, 350));
+          const run = async (): Promise<MetricsResponse> => Metrics.range({ from, to });
+
+          let res: MetricsResponse;
+          try {
             res = await run();
-          } else {
-            throw e;
+          } catch (e: unknown) {
+            // One-shot retry if just logged in and cookies haven't settled yet
+            const msg = (e instanceof Error ? e.message : "").toLowerCase();
+            if (msg.includes("unauthorized")) {
+              await new Promise((r) => setTimeout(r, 350));
+              res = await run();
+            } else {
+              throw e;
+            }
           }
+
+          const normalized: DataPoint[] = res.rows.map((r: MetricRow) => ({
+            date: r.day,               // RPC already normalized day on the server action
+            revenue: r.revenue,
+            orders: r.orders,
+            sessions: r.sessions,
+            newCustomers: r.new_customers,
+          }));
+
+          setData(normalized);
+          setTotals(res.totals);
+        } catch (e: unknown) {
+          console.error("metrics.range failed", e);
+          setError(e instanceof Error ? e.message : "Failed to load metrics");
         }
-        const normalized: DataPoint[] = res.rows.map((r: any) => ({
-          date: r.day, // el server action ya renombra metric_day → day
-          revenue: r.revenue,
-          orders: r.orders,
-          sessions: r.sessions,
-          newCustomers: r.new_customers,
-        }));
-        setData(normalized);
-        setTotals(res.totals);
-      } catch (e: any) {
-        console.error("metrics.range failed", e);
-        setError(e?.message || "Failed to load metrics");
-      }
-    });
+      });
   }, [range]);
 
   // 3) Selected metric

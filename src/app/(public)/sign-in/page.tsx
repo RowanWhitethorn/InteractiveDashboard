@@ -33,12 +33,16 @@ async function onSubmit(e: React.FormEvent) {
      await supabase.auth.getSession();
      router.refresh();
      router.replace(next);
-  } catch (e: any) {
+  } catch (e: unknown) {
+      if (e instanceof Error) {
     console.error('signIn exception', e);
     setError(e?.message || 'Unexpected error');
+  }else {
+    console.error('signIn exception', e);
+    setError('Unexpected error');
   }
 }
-
+}
 
 console.log("SB URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
 return (
