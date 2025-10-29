@@ -87,8 +87,10 @@ export type InputFieldProps = InputProps & {
 
 export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, description, id: idProp, required, requiredMark = true, ...props }, ref) => {
-    // Always generate the id if it isn't passed as a prop
-    const id = idProp || React.useId(); // Ensure `useId()` is always called unconditionally
+    // Always call useId() unconditionally at the top of the component
+    const generatedId = React.useId();
+    // If idProp is provided, use it; otherwise, use generatedId
+    const id = idProp || generatedId;
 
     return (
       <div className="grid gap-1.5">
@@ -107,6 +109,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   }
 );
 InputField.displayName = "InputField";
+
 
 
 export type PasswordInputProps = Omit<InputProps, "type" | "right"> & {
