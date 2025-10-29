@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { Mail, Lock } from 'lucide-react';
 import { InputField, PasswordInput } from '@/components/ui/input';
+import { getPublicBaseUrl } from "@/lib/url";
 
 export default function SignUpPage() {
   const supabase = useMemo(() => createSupabaseBrowser(), []);
   const router = useRouter();
+  const redirectBase = getPublicBaseUrl();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,8 +29,7 @@ export default function SignUpPage() {
           email,
           password,
           options: {
-            emailRedirectTo:
-              typeof window !== 'undefined' ? `${location.origin}/` : undefined,
+          emailRedirectTo: redirectBase ? `${redirectBase}/` : undefined,
           },
         });
 
