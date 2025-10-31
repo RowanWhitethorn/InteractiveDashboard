@@ -98,7 +98,7 @@ export default function SignUpPage() {
 
         {/* Role selector (demo) */}
         <label className="block text-sm">
-          Role <span className="text-[10px] text-amber-600 ml-1">no intentar en producción ☺</span>
+          Role <span className="text-[10px] text-amber-600 ml-1"> Do not try this in Prod ☺</span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as 'user' | 'admin')}
