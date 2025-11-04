@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Mail, Lock } from 'lucide-react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { InputField, PasswordInput } from '@/components/ui/input';
-import { redirect } from "next/navigation";
 
 export default function SignInPage() {
 const supabase = createSupabaseBrowser();
@@ -17,7 +16,7 @@ const next = search.get('next') || '/';
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [error, setError] = useState<string | null>(null);
-const [pending, startTransition] = useTransition();
+const [pending] = useTransition();
 
 
 async function onSubmit(e: React.FormEvent) {
@@ -34,9 +33,10 @@ async function onSubmit(e: React.FormEvent) {
      await supabase.auth.getSession();
      router.refresh();
      router.replace(next);
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unexpected error';
     console.error('signIn exception', e);
-    setError(e?.message || 'Unexpected error');
+    setError(msg);
   }
 }
 

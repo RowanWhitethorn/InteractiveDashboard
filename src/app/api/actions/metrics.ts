@@ -23,6 +23,14 @@ export type MetricsResponse = {
   };
 };
 
+type RpcRow = {
+  metric_day: string;
+  revenue: number;
+  orders: number;
+  sessions: number;
+  new_customers: number;
+};
+
 const RangeInput = z.object({
   from: z.coerce.date(),
   to: z.coerce.date(),
@@ -62,7 +70,7 @@ export async function range(input: unknown) {
   const parsed = RangeInput.parse(input);
   // Normaliza orden
   let from = parsed.from <= parsed.to ? parsed.from : parsed.to;
-  let to   = parsed.to   >= parsed.from ? parsed.to   : parsed.from;
+  const to   = parsed.to   >= parsed.from ? parsed.to   : parsed.from;
 
   //  Cap de rango: admin 30 días, user 5 días
   const maxDays = isAdmin ? 30 : 5;
@@ -98,8 +106,8 @@ export async function range(input: unknown) {
   const conversion_rate = sessions > 0 ? orders / sessions : 0;
 
   return {
- rows: (rows ?? []).map((r: any) => ({
-   day: r.metric_day,  // <- viene de la RPC
+ rows: (rows ?? []).map((r: RpcRow) => ({
+   day: r.metric_day,  
       revenue: Number(r.revenue) || 0,
       orders: Number(r.orders) || 0,
       sessions: Number(r.sessions) || 0,

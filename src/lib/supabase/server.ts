@@ -17,7 +17,7 @@ export async function createSupabaseServer() {
         return cookieStore.getAll();
       },
       // En RSC NO se puede escribir cookies → no-op
-      setAll(_cookiesToSet) {
+      setAll(_pairs) {
         /* no-op en RSC */
       },
     },

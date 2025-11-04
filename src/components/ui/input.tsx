@@ -87,7 +87,8 @@ export type InputFieldProps = InputProps & {
 
 export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, description, id: idProp, required, requiredMark = true, ...props }, ref) => {
-    const [id] = React.useState(idProp ?? React.useId());
+    const generatedId = React.useId();       // call hook unconditionally
+    const id = idProp ?? generatedId;        // then decide which id to use
 
     return (
       <div className="grid gap-1.5">

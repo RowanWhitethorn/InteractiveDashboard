@@ -13,7 +13,7 @@ export default function SignUpPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'user' | 'admin'>('user'); // ← new
+  const [role, setRole] = useState<'user' | 'admin'>('user');
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -42,29 +42,31 @@ export default function SignUpPage() {
         const user = res.data.user;
         console.log('Session after sign-up:', session);
 
-        // If email confirmations are OFF, user is already logged in.
         if (session && user) {
-          // Upsert profile with chosen role (demo)
+          // Upsert profile with chosen role (demo only)
           const { error: upsertErr } = await supabase.from('profiles').upsert({
             user_id: user.id,
             email,
             role,
           });
           if (upsertErr) {
-            console.warn('profiles upsert failed (will be created later on login):', upsertErr);
+            console.warn(
+              'profiles upsert failed (will be created later on login):',
+              upsertErr
+            );
           }
-          await supabase.auth.getSession();          
+          await supabase.auth.getSession();
           await new Promise((r) => setTimeout(r, 50));
-          router.refresh();                           
-          router.replace('/');                        
+          router.refresh();
+          router.replace('/');
         } else {
-          // If confirmations are ON, user must verify email first.
           alert('Check your email to confirm your account, then sign in.');
           router.replace('/sign-in');
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Unexpected error';
         console.error('signUp exception', e);
-        setError(e?.message || 'Unexpected error');
+        setError(msg);
       }
     });
   }
@@ -94,9 +96,11 @@ export default function SignUpPage() {
           error={error?.toLowerCase().includes('password') ? error : false}
         />
 
-        {/* Role selector (demo) */}
         <label className="block text-sm">
-          Role <span className="text-[10px] text-amber-600 ml-1">do not try in RL</span>
+          Role{' '}
+          <span className="text-[10px] text-amber-600 ml-1">
+            do not try this in production ☺
+          </span>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as 'user' | 'admin')}

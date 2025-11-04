@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/chart";
 import { motion } from "framer-motion";
 import * as Metrics from "@/app/api/actions/metrics";
+import type { MetricsResponse, MetricRow } from "@/app/api/actions/metrics";
+
 
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
 const itemVariants = {
@@ -127,9 +129,9 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
         let res;
         try {
           res = await run();
-        } catch (e: any) {
+        } catch (e: unknown) {
           // One-shot retry if just logged in and cookies haven't settled yet
-          const msg = (e?.message || '').toLowerCase();
+          const msg = (e instanceof Error ? e.message : String(e)).toLowerCase();
           if (msg.includes('unauthorized')) {
             await new Promise(r => setTimeout(r, 350));
             res = await run();
@@ -137,7 +139,7 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
             throw e;
           }
         }
-        const normalized: DataPoint[] = res.rows.map((r: any) => ({
+        const normalized: DataPoint[] = res.rows.map((r: MetricRow) => ({
           date: r.day, // el server action ya renombra metric_day → day
           revenue: r.revenue,
           orders: r.orders,
@@ -146,9 +148,10 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
         }));
         setData(normalized);
         setTotals(res.totals);
-      } catch (e: any) {
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : "Failed to load metrics";
         console.error("metrics.range failed", e);
-        setError(e?.message || "Failed to load metrics");
+        setError(msg);
       }
     });
   }, [range]);
