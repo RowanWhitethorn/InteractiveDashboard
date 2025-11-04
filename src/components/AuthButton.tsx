@@ -1,47 +1,41 @@
-// src/components/AuthButton.tsx
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createSupabaseBrowser } from '@/lib/supabase/client';
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createSupabaseBrowser } from "@/lib/supabase/client";
 
-export default function AuthButton() {
+type InitialUser = { id: string; email: string | null } | null;
+
+export default function AuthButton({ initialUser }: { initialUser: InitialUser }) {
   const router = useRouter();
-  const supabase = useMemo(() => createSupabaseBrowser(), []); // ← evita instancias por render
-  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const supabase = useMemo(() => createSupabaseBrowser(), []);
+  const [signedIn, setSignedIn] = useState<boolean>(!!initialUser);
 
   useEffect(() => {
-    // lectura inicial
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-    // suscripción a cambios (login/logout realizados en el cliente)
-    const { data: sub } = supabase.auth.onAuthStateChange((evt, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       setSignedIn(!!session);
-      if (evt === 'SIGNED_IN') {
-        // cookie ya está, fuerza re-render del árbol del server
+      // ✅ Refresh server tree on all relevant auth events (including initial)
+      if (
+        event === "INITIAL_SESSION" ||
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "USER_UPDATED" ||
+        event === "SIGNED_OUT"
+      ) {
         router.refresh();
       }
-      // Ignora: TOKEN_REFRESHED, INITIAL_SESSION, PASSWORD_RECOVERY, USER_UPDATED, etc.
     });
     return () => sub.subscription.unsubscribe();
   }, [router, supabase]);
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();   // ← dispara onAuthStateChange en el cliente
-    } catch {
-      // opcional: log
-    } finally {
-      router.refresh();                // rehidrata componentes server
-    }
+    await supabase.auth.signOut();
+    router.refresh();
+    router.replace("/sign-in");
   };
 
-  if (signedIn === null) {
-    return <div className="w-[92px] h-[34px]" />; // skeleton pequeño
-  }
-
   return signedIn ? (
-    // 👇 sin <form action="/logout">; lo hacemos client-side
     <button
       onClick={handleSignOut}
       className="rounded-md border px-3 py-1.5 text-sm"

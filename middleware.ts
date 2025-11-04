@@ -1,3 +1,4 @@
+// src/middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -7,11 +8,7 @@ const PUBLIC_ONLY = new Set(["/sign-in", "/sign-up"]);
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const { pathname } = url;
-
   const res = NextResponse.next();
-  
-  // Determine the domain dynamically based on the environment
-  const domain = process.env.NODE_ENV === 'production' ? 'yourdomain.com' : 'localhost';
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,18 +16,11 @@ export async function middleware(req: NextRequest) {
     {
       cookies: {
         getAll: () => req.cookies.getAll(),
-        setAll: (cookies) => {
-          cookies.forEach(({ name, value, options }) => {
-            // Ensure cookies have the correct path and domain
-            res.cookies.set({
-              name, 
-              value, 
-              path: '/', 
-              domain,   // Use dynamic domain
-              secure: process.env.NODE_ENV === 'production', // Enable 'secure' flag in production
-              ...options 
-            });
-          });
+        setAll: (pairs) => {
+          for (const { name, value, options } of pairs) {
+            // ✅ DO NOT set domain
+            res.cookies.set({ name, value, ...options });
+          }
         },
       },
     }
@@ -52,3 +42,5 @@ export async function middleware(req: NextRequest) {
 
   return res;
 }
+
+export const config = { matcher: ["/", "/sign-in", "/sign-up", "/logout", "/api/:path*"] };
