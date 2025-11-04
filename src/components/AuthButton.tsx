@@ -11,11 +11,11 @@ export default function AuthButton({ initialUser }: { initialUser: InitialUser }
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowser(), []);
   const [signedIn, setSignedIn] = useState<boolean>(!!initialUser);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       setSignedIn(!!session);
-      // ✅ Refresh server tree on all relevant auth events (including initial)
       if (
         event === "INITIAL_SESSION" ||
         event === "SIGNED_IN" ||
@@ -30,17 +30,35 @@ export default function AuthButton({ initialUser }: { initialUser: InitialUser }
   }, [router, supabase]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.refresh();
-    router.replace("/sign-in");
+    if (busy) return;
+    setBusy(true);
+
+    try {
+      // 1) Optimistically clear client state (helps UI immediately)
+      try { await supabase.auth.signOut(); } catch { /* ignore */ }
+
+      // 2) Server-side signout clears httpOnly cookies
+      await fetch("/api/auth/signout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+      });
+
+      // 3) Rehydrate server tree and leave
+      router.refresh();
+      router.replace("/sign-in");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return signedIn ? (
     <button
       onClick={handleSignOut}
-      className="rounded-md border px-3 py-1.5 text-sm"
+      disabled={busy}
+      className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-60"
     >
-      Sign out
+      {busy ? "Signing out…" : "Sign out"}
     </button>
   ) : (
     <div className="inline-flex items-center gap-2">
