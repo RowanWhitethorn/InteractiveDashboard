@@ -7,10 +7,8 @@ import { getProfile, requireUser } from "@/lib/auth";
  export const fetchCache = 'force-no-store'; // belt & suspenders
 
 export default async function DashboardPage() {
-  // 🚧 block anonymous users *before* rendering anything
-  await requireUser(); // redirects to /sign-in automatically
-
+  await requireUser();             // still enforces auth
   const profile = await getProfile();
   const role: "admin" | "user" = profile?.role === "admin" ? "admin" : "user";
-  return <DashboardLayout role={role} key = {role}/>;
+  return <DashboardLayout role={role} key={role} />; // keep key={role}
 }
