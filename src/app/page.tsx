@@ -2,7 +2,9 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { getProfile, requireUser } from "@/lib/auth";
 
-export const revalidate = 300;
+ export const dynamic = 'force-dynamic';
+ export const revalidate = 0;            // extra safety
+ export const fetchCache = 'force-no-store'; // belt & suspenders
 
 export default async function DashboardPage() {
   // 🚧 block anonymous users *before* rendering anything
@@ -10,5 +12,5 @@ export default async function DashboardPage() {
 
   const profile = await getProfile();
   const role: "admin" | "user" = profile?.role === "admin" ? "admin" : "user";
-  return <DashboardLayout role={role} />;
+  return <DashboardLayout role={role} key = {role}/>;
 }
