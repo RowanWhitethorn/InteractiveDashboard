@@ -18,8 +18,16 @@ export async function middleware(req: NextRequest) {
         getAll: () => req.cookies.getAll(),
         setAll: (pairs) => {
           for (const { name, value, options } of pairs) {
-            // ✅ DO NOT set domain
-            res.cookies.set({ name, value, ...options });
+            // Host-only cookies on Netlify (no `domain`) + safe defaults.
+            res.cookies.set({
+              name,
+              value,
+              // keep anything Supabase asked for, add safe fallbacks
+              ...options,
+              path: options?.path ?? "/",
+              sameSite: (options?.sameSite as any) ?? "lax",
+              secure: options?.secure ?? process.env.NODE_ENV === "production",
+            });
           }
         },
       },
