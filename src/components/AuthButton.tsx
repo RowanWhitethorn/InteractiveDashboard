@@ -7,34 +7,45 @@ import { createSupabaseBrowser } from "@/lib/supabase/client";
 
 type InitialUser = { id: string; email: string | null } | null;
 
-export default function AuthButton({ initialUser }: { initialUser: InitialUser }) {
+export default function AuthButton({ initialUser }: { initialUser?: InitialUser }) {
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowser(), []);
-  const [signedIn, setSignedIn] = useState<boolean>(!!initialUser);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      setSignedIn(!!session);
-      if (
-        event === "INITIAL_SESSION" ||
-        event === "SIGNED_IN" ||
-        event === "TOKEN_REFRESHED" ||
-        event === "USER_UPDATED" ||
-        event === "SIGNED_OUT"
-      ) {
+    let alive = true;
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (!alive) return;
+        setSignedIn(!!data.user);
+      } catch {
+        if (!alive) return;
+        setSignedIn(!!initialUser);
+      }
+    })();
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event) => {
+      // For safety, confirm with getUser() on events that can change server UI.
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        const { data } = await supabase.auth.getUser();
+        setSignedIn(!!data.user);
         router.refresh();
       }
+      // Avoid refreshing on INITIAL_SESSION / TOKEN_REFRESHED to prevent loops.
     });
-    return () => sub.subscription.unsubscribe();
-  }, [router, supabase]);
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [router, supabase, initialUser]);
 
   const handleSignOut = async () => {
     if (busy) return;
     setBusy(true);
 
     try {
-      // 1) Optimistically clear client state (helps UI immediately)
+
       try { await supabase.auth.signOut(); } catch { /* ignore */ }
 
       // 2) Server-side signout clears httpOnly cookies
@@ -42,7 +53,9 @@ export default function AuthButton({ initialUser }: { initialUser: InitialUser }
         method: "POST",
         credentials: "include",
         headers: { "content-type": "application/json" },
+         cache: "no-store",
       });
+
 
       // 3) Rehydrate server tree and leave
       router.refresh();
@@ -51,7 +64,9 @@ export default function AuthButton({ initialUser }: { initialUser: InitialUser }
       setBusy(false);
     }
   };
-
+  if (signedIn === null) {
+    return <div className="w-[92px] h-[34px]" />;
+  }
   return signedIn ? (
     <button
       onClick={handleSignOut}

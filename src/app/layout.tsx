@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import "./global.css";
-
-import { getSession, getProfile } from "@/lib/auth";
+import { getProfile } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import AuthButton from "@/components/AuthButton";
 import UserBadge from "@/components/UserBadge";
 
@@ -31,13 +31,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // ✅ Get server truth
-  const session = await getSession();
-  const profile = session ? await getProfile() : null;
+  // ✅ Get server-authenticated user (no warning, verified by Auth server)
+  const user = await getUser();
+  const profile = user ? await getProfile() : null;
 
-  const initialUser = session
-    ? { id: session.user.id, email: session.user.email ?? null }
-    : null;
+  const initialUser = user ? { id: user.id, email: user.email ?? null } : null;
   const initialRole: "admin" | "user" =
     profile?.role === "admin" ? "admin" : "user";
 

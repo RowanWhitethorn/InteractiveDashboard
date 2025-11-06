@@ -25,9 +25,9 @@ export async function getSession(): Promise<Session | null> {
 /** Enforce an authenticated session or redirect to /sign-in. */
 export async function requireUser() {
   const supabase = await getSupabase();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect("/sign-in");
-  return { supabase, session };
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/sign-in");
+  return { supabase, user };
 }
 
 /** Convenience: get the current user object (null if not signed in). */
