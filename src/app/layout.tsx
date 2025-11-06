@@ -9,6 +9,8 @@ import AuthButton from "@/components/AuthButton";
 import UserBadge from "@/components/UserBadge";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,8 +65,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </Link>
 
               {/* ✅ Always mount header controls, seeded with server values */}
-              <UserBadge initialUser={initialUser} initialRole={initialRole} />
-              <AuthButton initialUser={initialUser} />
+              <UserBadge
+                initialUser={initialUser}
+                initialRole={initialRole}
+                key={`badge-${initialUser?.id ?? "anon"}-${initialRole}`}
+              />
+              <AuthButton
+                initialUser={initialUser}
+                key={`btn-${initialUser?.id ?? "anon"}`}
+              />
             </nav>
           </div>
         </header>
