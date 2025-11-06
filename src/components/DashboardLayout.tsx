@@ -105,13 +105,6 @@ export default function DashboardLayout({ role = "user" }: { role?: "admin" | "u
     return d;
   }, [today, maxDays]);
   const [range, setRange] = useState<[Date, Date]>([start, today]);
-    // Reset range whenever role → maxDays changes so limits & labels stay in sync
-useEffect(() => {
-  const t = new Date(); t.setHours(0,0,0,0);
-  const s = new Date(t); s.setDate(s.getDate() - (maxDays - 1));
-  setRange([s, t]);
-}, [maxDays]);
-
 
   // 1) Remote data state
   const [data, setData] = useState<DataPoint[]>([]);

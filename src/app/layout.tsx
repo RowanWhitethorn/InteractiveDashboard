@@ -3,14 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import "./global.css";
-import { getProfile } from "@/lib/auth";
-import { getUser } from "@/lib/auth";
+
+import { getSession, getProfile } from "@/lib/auth";
 import AuthButton from "@/components/AuthButton";
 import UserBadge from "@/components/UserBadge";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,11 +29,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // ✅ Get server-authenticated user (no warning, verified by Auth server)
-  const user = await getUser();
-  const profile = user ? await getProfile() : null;
+  // ✅ Get server truth
+  const session = await getSession();
+  const profile = session ? await getProfile() : null;
 
-  const initialUser = user ? { id: user.id, email: user.email ?? null } : null;
+  const initialUser = session
+    ? { id: session.user.id, email: session.user.email ?? null }
+    : null;
   const initialRole: "admin" | "user" =
     profile?.role === "admin" ? "admin" : "user";
 
@@ -63,15 +63,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </Link>
 
               {/* ✅ Always mount header controls, seeded with server values */}
-              <UserBadge
-                initialUser={initialUser}
-                initialRole={initialRole}
-                key={`badge-${initialUser?.id ?? "anon"}-${initialRole}`}
-              />
-              <AuthButton
-                initialUser={initialUser}
-                key={`btn-${initialUser?.id ?? "anon"}`}
-              />
+              <UserBadge initialUser={initialUser} initialRole={initialRole} />
+              <AuthButton initialUser={initialUser} />
             </nav>
           </div>
         </header>
